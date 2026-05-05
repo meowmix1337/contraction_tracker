@@ -27,7 +27,7 @@ export function useContractions() {
 
   useEffect(() => {
     if (!tracking) return;
-    const start = Date.now() - elapsed * 1000;
+    const start = Date.now();
     const id = setInterval(() => {
       setElapsed(Math.floor((Date.now() - start) / 1000));
     }, 250);
