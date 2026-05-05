@@ -179,6 +179,7 @@ export default function App() {
   const avgDur = averageDuration(durations);
   const avgInt = averageInterval(intervals);
   const count = contractions.length;
+  const lastTime = contractions[0]?.startTime ?? null;
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [trackToDelete, setTrackToDelete] = useState<Track | null>(null);
@@ -229,6 +230,10 @@ export default function App() {
       {/* Stats */}
       <div className="stats-grid">
         <StatCard label="Count" value={count > 0 ? String(count) : '—'} />
+        <StatCard
+          label="Last"
+          value={lastTime !== null ? formatTime(lastTime) : '—'}
+        />
         <StatCard
           label="Avg duration"
           value={avgDur !== null ? formatDuration(avgDur) : '—'}
