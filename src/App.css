@@ -539,6 +539,43 @@
   opacity: 0.88;
 }
 
+/* Pain rating */
+.pain-rating {
+  display: flex;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.pain-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.12s, background 0.12s, color 0.12s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pain-dot:hover {
+  border-color: var(--dot-color, var(--accent));
+  color: var(--dot-color, var(--accent));
+  transform: scale(1.15);
+}
+
+.pain-dot.selected {
+  background: var(--dot-color, var(--accent));
+  border-color: var(--dot-color, var(--accent));
+  color: #000;
+  transform: scale(1.1);
+}
+
 .btn-show-more {
   width: 100%;
   padding: 12px;

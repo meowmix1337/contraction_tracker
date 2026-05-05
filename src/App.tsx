@@ -17,18 +17,42 @@ function StatCard({ label, value, className }: { label: string; value: string; c
   );
 }
 
+const PAIN_COLORS = ['', '#4ade80', '#a3e635', '#facc15', '#fb923c', '#f87171'];
+const PAIN_LABELS = ['', '1 – Mild', '2 – Uncomfortable', '3 – Moderate', '4 – Intense', '5 – Severe'];
+
+function PainRating({ value, onChange }: { value: number | null; onChange: (level: number | null) => void }) {
+  return (
+    <div className="pain-rating" aria-label="Pain level">
+      {[1, 2, 3, 4, 5].map(n => (
+        <button
+          key={n}
+          className={`pain-dot ${value === n ? 'selected' : ''}`}
+          style={{ '--dot-color': PAIN_COLORS[n] } as React.CSSProperties}
+          onClick={() => onChange(value === n ? null : n)}
+          aria-label={PAIN_LABELS[n]}
+          title={PAIN_LABELS[n]}
+        >
+          {n}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function ContractionCard({
   contraction,
   index,
   total,
   onDelete,
   onUpdateDuration,
+  onUpdatePainLevel,
 }: {
   contraction: Contraction;
   index: number;
   total: number;
   onDelete: (id: string) => void;
   onUpdateDuration: (id: string, seconds: number) => void;
+  onUpdatePainLevel: (id: string, level: number | null) => void;
 }) {
   const isInProgress = contraction.endTime === null;
   const isLatest = index === 0;
@@ -117,6 +141,12 @@ function ContractionCard({
             </span>
           )}
         </div>
+        {!isInProgress && (
+          <PainRating
+            value={contraction.painLevel ?? null}
+            onChange={level => onUpdatePainLevel(contraction.id, level)}
+          />
+        )}
       </div>
       <div className="card-actions">
         {!isInProgress && (
@@ -133,7 +163,7 @@ function ContractionCard({
 }
 
 export default function App() {
-  const { contractions, tracking, elapsed, startContraction, stopContraction, deleteContraction, updateDuration, clearAll } =
+  const { contractions, tracking, elapsed, startContraction, stopContraction, deleteContraction, updateDuration, updatePainLevel, clearAll } =
     useContractions();
 
   const completed = contractions.filter(c => c.endTime !== null);
@@ -239,6 +269,7 @@ export default function App() {
                   total={count}
                   onDelete={deleteContraction}
                   onUpdateDuration={updateDuration}
+                  onUpdatePainLevel={updatePainLevel}
                 />
               ))}
             </div>
