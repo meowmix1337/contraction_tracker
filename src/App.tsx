@@ -144,6 +144,7 @@ export default function App() {
   const avgInt = averageInterval(intervals);
   const count = contractions.length;
   const [showConfirm, setShowConfirm] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(5);
 
   function handleMainButton() {
     if (tracking) stopContraction();
@@ -228,24 +229,34 @@ export default function App() {
             <span>No contractions recorded yet</span>
           </div>
         ) : (
-          <div className="history-list">
-            {contractions.map((c, i) => (
-              <ContractionCard
-                key={c.id}
-                contraction={c}
-                index={i}
-                total={count}
-                onDelete={deleteContraction}
-                onUpdateDuration={updateDuration}
-              />
-            ))}
-          </div>
+          <>
+            <div className="history-list">
+              {contractions.slice(0, visibleCount).map((c, i) => (
+                <ContractionCard
+                  key={c.id}
+                  contraction={c}
+                  index={i}
+                  total={count}
+                  onDelete={deleteContraction}
+                  onUpdateDuration={updateDuration}
+                />
+              ))}
+            </div>
+            {visibleCount < count && (
+              <button
+                className="btn-show-more"
+                onClick={() => setVisibleCount(v => v + 5)}
+              >
+                Show {Math.min(5, count - visibleCount)} more
+              </button>
+            )}
+          </>
         )}
       </div>
 
       <ConfirmDialog
         open={showConfirm}
-        onConfirm={() => { clearAll(); setShowConfirm(false); }}
+        onConfirm={() => { clearAll(); setShowConfirm(false); setVisibleCount(5); }}
         onCancel={() => setShowConfirm(false)}
       />
     </div>
