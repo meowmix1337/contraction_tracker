@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Activity, Timer, Clock, Trash2, RotateCcw, Info } from 'lucide-react';
 import { useContractions } from './useContractions';
 import { formatDuration, formatTime, averageDuration, averageInterval } from './utils';
+import { ConfirmDialog } from './ConfirmDialog';
 import type { Contraction } from './types';
 import './App.css';
 
@@ -72,6 +74,7 @@ export default function App() {
   const avgDur = averageDuration(durations);
   const avgInt = averageInterval(intervals);
   const count = contractions.length;
+  const [showConfirm, setShowConfirm] = useState(false);
 
   function handleMainButton() {
     if (tracking) stopContraction();
@@ -89,7 +92,7 @@ export default function App() {
           <h1>Contractions</h1>
         </div>
         {count > 0 && (
-          <button className="btn-clear" onClick={clearAll}>
+          <button className="btn-clear" onClick={() => setShowConfirm(true)}>
             <RotateCcw size={13} />
             Reset
           </button>
@@ -165,6 +168,12 @@ export default function App() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={showConfirm}
+        onConfirm={() => { clearAll(); setShowConfirm(false); }}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   );
 }
