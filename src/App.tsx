@@ -3,6 +3,8 @@ import { Activity, Timer, Clock, Trash2, RotateCcw, Info, Pencil, Check, X, Minu
 import { useContractions } from './useContractions';
 import { formatDuration, formatTime, averageDuration, averageInterval } from './utils';
 import { ConfirmDialog } from './ConfirmDialog';
+import { lazy, Suspense } from 'react';
+const ContractionCharts = lazy(() => import('./ContractionCharts').then(m => ({ default: m.ContractionCharts })));
 import type { Contraction } from './types';
 import './App.css';
 
@@ -209,6 +211,10 @@ export default function App() {
           </p>
         </div>
       )}
+
+      <Suspense fallback={null}>
+        <ContractionCharts contractions={contractions} />
+      </Suspense>
 
       {/* History */}
       <div className="history-section">
