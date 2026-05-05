@@ -539,6 +539,25 @@
   opacity: 0.88;
 }
 
+.btn-show-more {
+  width: 100%;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn-show-more:hover {
+  background: var(--surface-2);
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+
 /* Charts */
 .charts-section {
   display: flex;
