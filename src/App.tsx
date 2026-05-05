@@ -215,7 +215,7 @@ export default function App() {
       </div>
 
       {/* Main Button */}
-      <div className="btn-track-wrap">
+      <div className={`btn-track-wrap ${tracking ? 'tracking' : ''}`}>
         <div className="elapsed-display">
           {tracking ? formatDuration(elapsed) : ''}
         </div>

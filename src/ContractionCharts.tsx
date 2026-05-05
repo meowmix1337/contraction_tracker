@@ -11,12 +11,12 @@ import {
 import type { Contraction } from './types';
 import { formatDuration, formatTime } from './utils';
 
-const ACCENT = '#6c63ff';
-const YELLOW = '#facc15';
-const GREEN = '#4ade80';
-const RED = '#f87171';
-const GRID = '#2e3350';
-const TEXT = '#8b91b8';
+const ACCENT = '#181d26';
+const YELLOW = '#d9a441';
+const GREEN = '#006400';
+const RED = '#aa2d00';
+const GRID = '#e0e2e6';
+const TEXT = '#41454d';
 
 interface ChartPoint {
   label: string;
