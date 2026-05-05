@@ -63,7 +63,16 @@ export function useContractions() {
   }, []);
 
   const deleteContraction = useCallback((id: string) => {
-    setContractions(prev => prev.filter(c => c.id !== id));
+    setContractions(prev => {
+      const filtered = prev.filter(c => c.id !== id);
+      return filtered.map((c, i) => {
+        const prevCompleted = filtered.slice(i + 1).find(p => p.endTime !== null);
+        const interval = prevCompleted
+          ? Math.floor((c.startTime - prevCompleted.endTime!) / 1000)
+          : null;
+        return { ...c, interval };
+      });
+    });
   }, []);
 
   const clearAll = useCallback(() => {
