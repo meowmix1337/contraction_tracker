@@ -16,6 +16,16 @@ function saveToStorage(contractions: Contraction[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(contractions));
 }
 
+function recomputeIntervals(contractions: Contraction[]): Contraction[] {
+  return contractions.map((c, i) => {
+    const prevCompleted = contractions.slice(i + 1).find(p => p.endTime !== null);
+    const interval = prevCompleted
+      ? Math.floor((c.startTime - prevCompleted.endTime!) / 1000)
+      : null;
+    return { ...c, interval };
+  });
+}
+
 export function useContractions() {
   const [contractions, setContractions] = useState<Contraction[]>(loadFromStorage);
   const [tracking, setTracking] = useState(false);
@@ -65,13 +75,17 @@ export function useContractions() {
   const deleteContraction = useCallback((id: string) => {
     setContractions(prev => {
       const filtered = prev.filter(c => c.id !== id);
-      return filtered.map((c, i) => {
-        const prevCompleted = filtered.slice(i + 1).find(p => p.endTime !== null);
-        const interval = prevCompleted
-          ? Math.floor((c.startTime - prevCompleted.endTime!) / 1000)
-          : null;
-        return { ...c, interval };
+      return recomputeIntervals(filtered);
+    });
+  }, []);
+
+  const updateDuration = useCallback((id: string, newDuration: number) => {
+    setContractions(prev => {
+      const updated = prev.map(c => {
+        if (c.id !== id || c.endTime === null) return c;
+        return { ...c, duration: newDuration, endTime: c.startTime + newDuration * 1000 };
       });
+      return recomputeIntervals(updated);
     });
   }, []);
 
@@ -80,5 +94,5 @@ export function useContractions() {
     setTracking(false);
   }, []);
 
-  return { contractions, tracking, elapsed, startContraction, stopContraction, deleteContraction, clearAll };
+  return { contractions, tracking, elapsed, startContraction, stopContraction, deleteContraction, updateDuration, clearAll };
 }
