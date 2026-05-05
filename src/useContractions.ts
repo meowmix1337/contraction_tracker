@@ -53,6 +53,7 @@ export function useContractions() {
       endTime: null,
       duration: null,
       interval: null,
+      painLevel: null,
     };
     setContractions(prev => {
       const last = prev.find(c => c.endTime !== null);
@@ -89,10 +90,14 @@ export function useContractions() {
     });
   }, []);
 
+  const updatePainLevel = useCallback((id: string, level: number | null) => {
+    setContractions(prev => prev.map(c => c.id === id ? { ...c, painLevel: level } : c));
+  }, []);
+
   const clearAll = useCallback(() => {
     setContractions([]);
     setTracking(false);
   }, []);
 
-  return { contractions, tracking, elapsed, startContraction, stopContraction, deleteContraction, updateDuration, clearAll };
+  return { contractions, tracking, elapsed, startContraction, stopContraction, deleteContraction, updateDuration, updatePainLevel, clearAll };
 }

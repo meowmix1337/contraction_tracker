@@ -184,6 +184,55 @@ describe('useContractions', () => {
     expect(result.current.contractions[0].duration).toBe(0);
   });
 
+  it('updatePainLevel sets the pain level on a contraction', () => {
+    const { result } = renderHook(() => useContractions());
+
+    act(() => { result.current.startContraction(); });
+    act(() => { vi.advanceTimersByTime(30_000); });
+    act(() => { result.current.stopContraction(); });
+
+    const id = result.current.contractions[0].id;
+    act(() => { result.current.updatePainLevel(id, 3); });
+
+    expect(result.current.contractions[0].painLevel).toBe(3);
+  });
+
+  it('updatePainLevel can update to a different level', () => {
+    const { result } = renderHook(() => useContractions());
+
+    act(() => { result.current.startContraction(); });
+    act(() => { vi.advanceTimersByTime(30_000); });
+    act(() => { result.current.stopContraction(); });
+
+    const id = result.current.contractions[0].id;
+    act(() => { result.current.updatePainLevel(id, 2); });
+    act(() => { result.current.updatePainLevel(id, 5); });
+
+    expect(result.current.contractions[0].painLevel).toBe(5);
+  });
+
+  it('updatePainLevel can clear the pain level to null', () => {
+    const { result } = renderHook(() => useContractions());
+
+    act(() => { result.current.startContraction(); });
+    act(() => { vi.advanceTimersByTime(30_000); });
+    act(() => { result.current.stopContraction(); });
+
+    const id = result.current.contractions[0].id;
+    act(() => { result.current.updatePainLevel(id, 4); });
+    act(() => { result.current.updatePainLevel(id, null); });
+
+    expect(result.current.contractions[0].painLevel).toBeNull();
+  });
+
+  it('new contractions start with painLevel null', () => {
+    const { result } = renderHook(() => useContractions());
+
+    act(() => { result.current.startContraction(); });
+
+    expect(result.current.contractions[0].painLevel).toBeNull();
+  });
+
   it('clearAll removes all contractions and stops tracking', () => {
     const { result } = renderHook(() => useContractions());
 
