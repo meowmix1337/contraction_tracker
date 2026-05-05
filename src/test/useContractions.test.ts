@@ -75,6 +75,57 @@ describe('useContractions', () => {
     expect(result.current.contractions).toHaveLength(0);
   });
 
+  it('recalculates interval on the entry after a deleted middle contraction', () => {
+    const { result } = renderHook(() => useContractions());
+
+    // C1: 0–30s
+    act(() => { result.current.startContraction(); });
+    act(() => { vi.advanceTimersByTime(30_000); });
+    act(() => { result.current.stopContraction(); });
+
+    // C2: starts 60s after C1 ended, lasts 30s  →  interval from C1 = 60s
+    act(() => { vi.advanceTimersByTime(60_000); });
+    act(() => { result.current.startContraction(); });
+    act(() => { vi.advanceTimersByTime(30_000); });
+    act(() => { result.current.stopContraction(); });
+
+    // C3: starts 60s after C2 ended  →  interval from C2 = 60s
+    act(() => { vi.advanceTimersByTime(60_000); });
+    act(() => { result.current.startContraction(); });
+    act(() => { vi.advanceTimersByTime(30_000); });
+    act(() => { result.current.stopContraction(); });
+
+    // Newest-first: [C3, C2, C1]
+    const c2id = result.current.contractions[1].id;
+    act(() => { result.current.deleteContraction(c2id); });
+
+    // After deleting C2: [C3, C1] — C3's interval should now be ~150s (60+30+60) from C1's endTime
+    const [c3, c1] = result.current.contractions;
+    expect(result.current.contractions).toHaveLength(2);
+    expect(c3.interval).toBeGreaterThanOrEqual(150);
+    expect(c1.interval).toBeNull();
+  });
+
+  it('sets interval to null on the oldest remaining entry when the oldest is deleted', () => {
+    const { result } = renderHook(() => useContractions());
+
+    act(() => { result.current.startContraction(); });
+    act(() => { vi.advanceTimersByTime(30_000); });
+    act(() => { result.current.stopContraction(); });
+
+    act(() => { vi.advanceTimersByTime(60_000); });
+    act(() => { result.current.startContraction(); });
+    act(() => { vi.advanceTimersByTime(30_000); });
+    act(() => { result.current.stopContraction(); });
+
+    // Delete the oldest (C1, last in array)
+    const c1id = result.current.contractions[1].id;
+    act(() => { result.current.deleteContraction(c1id); });
+
+    expect(result.current.contractions).toHaveLength(1);
+    expect(result.current.contractions[0].interval).toBeNull();
+  });
+
   it('clearAll removes all contractions and stops tracking', () => {
     const { result } = renderHook(() => useContractions());
 
