@@ -5,9 +5,17 @@ interface Props {
   open: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  title?: string;
+  message?: string;
+  confirmLabel?: string;
 }
 
-export function ConfirmDialog({ open, onConfirm, onCancel }: Props) {
+export function ConfirmDialog({
+  open, onConfirm, onCancel,
+  title = 'Clear all data?',
+  message = 'This will permanently delete all recorded contractions from this device. This cannot be undone.',
+  confirmLabel = 'Clear data',
+}: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -33,11 +41,11 @@ export function ConfirmDialog({ open, onConfirm, onCancel }: Props) {
         <div className="confirm-icon">
           <AlertTriangle size={22} />
         </div>
-        <h2>Clear all data?</h2>
-        <p>This will permanently delete all recorded contractions from this device. This cannot be undone.</p>
+        <h2>{title}</h2>
+        <p>{message}</p>
         <div className="confirm-actions">
           <button className="btn-cancel" onClick={onCancel}>Cancel</button>
-          <button className="btn-confirm-delete" onClick={onConfirm}>Clear data</button>
+          <button className="btn-confirm-delete" onClick={onConfirm}>{confirmLabel}</button>
         </div>
       </div>
     </dialog>

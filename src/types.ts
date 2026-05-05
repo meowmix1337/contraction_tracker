@@ -1,3 +1,8 @@
+export interface Track {
+  id: string;
+  label: string;
+}
+
 export interface Contraction {
   id: string;
   startTime: number;

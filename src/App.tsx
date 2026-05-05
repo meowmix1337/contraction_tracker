@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Activity, Timer, Clock, Trash2, RotateCcw, Info, Pencil, Check, X, Minus, Plus } from 'lucide-react';
-import { useContractions } from './useContractions';
+import { useTracks } from './useTracks';
 import { formatDuration, formatTime, averageDuration, averageInterval } from './utils';
 import { ConfirmDialog } from './ConfirmDialog';
+import { TrackSwitcher } from './TrackSwitcher';
 import { lazy, Suspense } from 'react';
 const ContractionCharts = lazy(() => import('./ContractionCharts').then(m => ({ default: m.ContractionCharts })));
-import type { Contraction } from './types';
+import type { Contraction, Track } from './types';
 import './App.css';
 
 function StatCard({ label, value, className }: { label: string; value: string; className?: string }) {
@@ -163,8 +164,13 @@ function ContractionCard({
 }
 
 export default function App() {
-  const { contractions, tracking, elapsed, startContraction, stopContraction, deleteContraction, updateDuration, updatePainLevel, clearAll } =
-    useContractions();
+  const {
+    tracks, activeTrack, activeTrackId,
+    contractions, tracking, elapsed,
+    startContraction, stopContraction,
+    deleteContraction, updateDuration, updatePainLevel,
+    clearAll, createTrack, deleteTrack, renameTrack, switchTrack,
+  } = useTracks();
 
   const completed = contractions.filter(c => c.endTime !== null);
   const durations = completed.map(c => c.duration!);
@@ -173,8 +179,21 @@ export default function App() {
   const avgDur = averageDuration(durations);
   const avgInt = averageInterval(intervals);
   const count = contractions.length;
-  const [showConfirm, setShowConfirm] = useState(false);
+
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [trackToDelete, setTrackToDelete] = useState<Track | null>(null);
   const [visibleCount, setVisibleCount] = useState(5);
+
+  // Reset pagination when switching tracks
+  function handleSwitchTrack(id: string) {
+    switchTrack(id);
+    setVisibleCount(5);
+  }
+
+  function handleCreateTrack() {
+    createTrack();
+    setVisibleCount(5);
+  }
 
   function handleMainButton() {
     if (tracking) stopContraction();
@@ -189,10 +208,18 @@ export default function App() {
           <div className="icon-wrap">
             <Activity size={18} />
           </div>
-          <h1>Contractions</h1>
+          <TrackSwitcher
+            tracks={tracks}
+            activeTrackId={activeTrackId}
+            tracking={tracking}
+            onSwitch={handleSwitchTrack}
+            onCreate={handleCreateTrack}
+            onRename={renameTrack}
+            onDeleteRequest={setTrackToDelete}
+          />
         </div>
         {count > 0 && (
-          <button className="btn-clear" onClick={() => setShowConfirm(true)}>
+          <button className="btn-clear" onClick={() => setShowClearConfirm(true)}>
             <RotateCcw size={13} />
             Reset
           </button>
@@ -285,10 +312,24 @@ export default function App() {
         )}
       </div>
 
+      {/* Clear all contractions on active track */}
       <ConfirmDialog
-        open={showConfirm}
-        onConfirm={() => { clearAll(); setShowConfirm(false); setVisibleCount(5); }}
-        onCancel={() => setShowConfirm(false)}
+        open={showClearConfirm}
+        title={`Clear "${activeTrack.label}"?`}
+        message="This will permanently delete all recorded contractions for this track. This cannot be undone."
+        confirmLabel="Clear data"
+        onConfirm={() => { clearAll(); setShowClearConfirm(false); setVisibleCount(5); }}
+        onCancel={() => setShowClearConfirm(false)}
+      />
+
+      {/* Delete entire track */}
+      <ConfirmDialog
+        open={!!trackToDelete}
+        title={`Delete "${trackToDelete?.label}"?`}
+        message="This will permanently delete the track and all its contraction data. This cannot be undone."
+        confirmLabel="Delete track"
+        onConfirm={() => { deleteTrack(trackToDelete!.id); setTrackToDelete(null); setVisibleCount(5); }}
+        onCancel={() => setTrackToDelete(null)}
       />
     </div>
   );
