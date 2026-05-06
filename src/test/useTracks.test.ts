@@ -222,6 +222,54 @@ describe('useTracks — contraction operations', () => {
     expect(result.current.contractions[0].duration).toBeGreaterThanOrEqual(30);
   });
 
+  it('addContraction inserts a completed entry with correct duration', () => {
+    const { result } = renderHook(() => useTracks());
+    const startTime = Date.now() - 120_000;
+
+    act(() => { result.current.addContraction(startTime, 45, null); });
+
+    expect(result.current.contractions).toHaveLength(1);
+    const c = result.current.contractions[0];
+    expect(c.startTime).toBe(startTime);
+    expect(c.duration).toBe(45);
+    expect(c.endTime).toBe(startTime + 45_000);
+    expect(c.painLevel).toBeNull();
+  });
+
+  it('addContraction stores pain level', () => {
+    const { result } = renderHook(() => useTracks());
+    act(() => { result.current.addContraction(Date.now() - 60_000, 30, 3); });
+    expect(result.current.contractions[0].painLevel).toBe(3);
+  });
+
+  it('addContraction inserts in chronological order (newest-first storage)', () => {
+    const { result } = renderHook(() => useTracks());
+    const now = Date.now();
+
+    act(() => { result.current.addContraction(now - 60_000, 20, null); }); // older
+    act(() => { result.current.addContraction(now - 10_000, 20, null); }); // newer
+
+    expect(result.current.contractions[0].startTime).toBe(now - 10_000);
+    expect(result.current.contractions[1].startTime).toBe(now - 60_000);
+  });
+
+  it('addContraction recalculates intervals for surrounding entries', () => {
+    const { result } = renderHook(() => useTracks());
+    const base = 1_000_000_000_000;
+
+    // Add C1 then C3, then insert C2 between them
+    act(() => { result.current.addContraction(base, 30, null); });         // C1: base → base+30s
+    act(() => { result.current.addContraction(base + 200_000, 30, null); }); // C3
+    act(() => { result.current.addContraction(base + 90_000, 30, null); });  // C2 inserted between
+
+    // Newest-first: [C3, C2, C1]
+    const [c3, c2, c1] = result.current.contractions;
+    expect(c1.interval).toBeNull();                       // first contraction
+    expect(c2.interval).toBeGreaterThan(0);               // gap from C1.endTime
+    expect(c3.interval).toBeGreaterThan(0);               // gap from C2.endTime, recalculated
+    expect(c3.interval).toBeLessThan(c2.interval! + 90); // C3 gap is shorter after C2 inserted
+  });
+
   it('persists all tracks to localStorage', () => {
     const { result } = renderHook(() => useTracks());
 

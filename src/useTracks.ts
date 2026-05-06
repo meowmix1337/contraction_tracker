@@ -162,6 +162,28 @@ export function useTracks() {
     });
   }, []);
 
+  const addContraction = useCallback((startTime: number, duration: number, painLevel: number | null) => {
+    setState(prev => {
+      const current = prev.contractions[prev.activeTrackId] ?? [];
+      const newC: Contraction = {
+        id: crypto.randomUUID(),
+        startTime,
+        endTime: startTime + duration * 1000,
+        duration,
+        interval: null,
+        painLevel,
+      };
+      const sorted = [...current, newC].sort((a, b) => b.startTime - a.startTime);
+      return {
+        ...prev,
+        contractions: {
+          ...prev.contractions,
+          [prev.activeTrackId]: recomputeIntervals(sorted),
+        },
+      };
+    });
+  }, []);
+
   const clearAll = useCallback(() => {
     setState(prev => ({
       ...prev,
@@ -222,6 +244,7 @@ export function useTracks() {
     elapsed,
     startContraction,
     stopContraction,
+    addContraction,
     deleteContraction,
     updateDuration,
     updatePainLevel,

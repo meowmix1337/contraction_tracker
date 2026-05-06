@@ -5,6 +5,7 @@ import { formatDuration, formatTime, averageDuration, averageInterval } from './
 import { ConfirmDialog } from './ConfirmDialog';
 import { TrackSwitcher } from './TrackSwitcher';
 import { ExportDialog } from './ExportDialog';
+import { AddContractionDialog } from './AddContractionDialog';
 import { runExport } from './export';
 import type { ExportFormat } from './export';
 import { lazy, Suspense } from 'react';
@@ -170,7 +171,7 @@ export default function App() {
   const {
     tracks, activeTrack, activeTrackId, allContractions,
     contractions, tracking, elapsed,
-    startContraction, stopContraction,
+    startContraction, stopContraction, addContraction,
     deleteContraction, updateDuration, updatePainLevel,
     clearAll, createTrack, deleteTrack, renameTrack, switchTrack,
   } = useTracks();
@@ -187,6 +188,7 @@ export default function App() {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [trackToDelete, setTrackToDelete] = useState<Track | null>(null);
   const [showExport, setShowExport] = useState(false);
+  const [showAddDialog, setShowAddDialog] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
 
   function handleExport(selectedIds: string[], format: ExportFormat) {
@@ -298,6 +300,14 @@ export default function App() {
         <div className="history-header">
           <span className="history-title">History</span>
           {count > 0 && <span className="history-count">{count}</span>}
+          <button
+            className="btn-add-manual"
+            onClick={() => setShowAddDialog(true)}
+            aria-label="Add contraction manually"
+            title="Add manually"
+          >
+            <Plus size={14} />
+          </button>
         </div>
         {count === 0 ? (
           <div className="history-empty">
@@ -330,6 +340,16 @@ export default function App() {
           </>
         )}
       </div>
+
+      <AddContractionDialog
+        key={String(showAddDialog)}
+        open={showAddDialog}
+        onClose={() => setShowAddDialog(false)}
+        onAdd={(startTime, duration, painLevel) => {
+          addContraction(startTime, duration, painLevel);
+          setVisibleCount(v => Math.max(v, contractions.length + 1));
+        }}
+      />
 
       <ExportDialog
         key={String(showExport)}
