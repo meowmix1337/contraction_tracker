@@ -847,6 +847,11 @@
 
 /* Confirm dialog */
 .confirm-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
   background: var(--canvas);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-lg);
