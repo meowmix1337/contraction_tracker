@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { Activity, Timer, Clock, Trash2, RotateCcw, Info, Pencil, Check, X, Minus, Plus } from 'lucide-react';
+import { Activity, Timer, Clock, Trash2, RotateCcw, Info, Pencil, Check, X, Minus, Plus, Download } from 'lucide-react';
 import { useTracks } from './useTracks';
 import { formatDuration, formatTime, averageDuration, averageInterval } from './utils';
 import { ConfirmDialog } from './ConfirmDialog';
 import { TrackSwitcher } from './TrackSwitcher';
+import { ExportDialog } from './ExportDialog';
+import { runExport } from './export';
+import type { ExportFormat } from './export';
 import { lazy, Suspense } from 'react';
 const ContractionCharts = lazy(() => import('./ContractionCharts').then(m => ({ default: m.ContractionCharts })));
 import type { Contraction, Track } from './types';
@@ -165,7 +168,7 @@ function ContractionCard({
 
 export default function App() {
   const {
-    tracks, activeTrack, activeTrackId,
+    tracks, activeTrack, activeTrackId, allContractions,
     contractions, tracking, elapsed,
     startContraction, stopContraction,
     deleteContraction, updateDuration, updatePainLevel,
@@ -183,7 +186,13 @@ export default function App() {
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [trackToDelete, setTrackToDelete] = useState<Track | null>(null);
+  const [showExport, setShowExport] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
+
+  function handleExport(selectedIds: string[], format: ExportFormat) {
+    const selectedTracks = tracks.filter(t => selectedIds.includes(t.id));
+    runExport(format, selectedTracks, allContractions);
+  }
 
   // Reset pagination when switching tracks
   function handleSwitchTrack(id: string) {
@@ -219,12 +228,17 @@ export default function App() {
             onDeleteRequest={setTrackToDelete}
           />
         </div>
-        {count > 0 && (
-          <button className="btn-clear" onClick={() => setShowClearConfirm(true)}>
-            <RotateCcw size={13} />
-            Reset
+        <div className="header-actions">
+          <button className="btn-icon-header" onClick={() => setShowExport(true)} aria-label="Export data">
+            <Download size={15} />
           </button>
-        )}
+          {count > 0 && (
+            <button className="btn-clear" onClick={() => setShowClearConfirm(true)}>
+              <RotateCcw size={13} />
+              Reset
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Stats */}
@@ -316,6 +330,13 @@ export default function App() {
           </>
         )}
       </div>
+
+      <ExportDialog
+        open={showExport}
+        onClose={() => setShowExport(false)}
+        tracks={tracks}
+        onExport={handleExport}
+      />
 
       {/* Clear all contractions on active track */}
       <ConfirmDialog
