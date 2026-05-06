@@ -332,6 +332,7 @@ export default function App() {
       </div>
 
       <ExportDialog
+        key={String(showExport)}
         open={showExport}
         onClose={() => setShowExport(false)}
         tracks={tracks}

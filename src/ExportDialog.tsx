@@ -15,11 +15,6 @@ export function ExportDialog({ open, onClose, tracks, onExport }: Props) {
   const [format, setFormat] = useState<ExportFormat>('csv');
   const dialogRef = useRef<HTMLDialogElement>(null);
 
-  // Reset selection to all tracks each time the dialog opens
-  useEffect(() => {
-    if (open) setSelected(new Set(tracks.map(t => t.id)));
-  }, [open, tracks]);
-
   useEffect(() => {
     const el = dialogRef.current;
     if (!el) return;
