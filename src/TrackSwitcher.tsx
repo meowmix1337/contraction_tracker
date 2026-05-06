@@ -1,18 +1,23 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check, Pencil, Trash2, Plus } from 'lucide-react';
+import { ChevronDown, Check, Pencil, Trash2, Plus, LayoutGrid } from 'lucide-react';
 import type { Track } from './types';
 
 interface Props {
   tracks: Track[];
   activeTrackId: string;
+  isOverview: boolean;
   tracking: boolean;
   onSwitch: (id: string) => void;
+  onOverviewSelect: () => void;
   onCreate: () => void;
   onRename: (id: string, label: string) => void;
   onDeleteRequest: (track: Track) => void;
 }
 
-export function TrackSwitcher({ tracks, activeTrackId, tracking, onSwitch, onCreate, onRename, onDeleteRequest }: Props) {
+export function TrackSwitcher({
+  tracks, activeTrackId, isOverview, tracking,
+  onSwitch, onOverviewSelect, onCreate, onRename, onDeleteRequest,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState('');
@@ -31,14 +36,21 @@ export function TrackSwitcher({ tracks, activeTrackId, tracking, onSwitch, onCre
   }, [open]);
 
   const activeTrack = tracks.find(t => t.id === activeTrackId) ?? tracks[0];
+  const label = isOverview ? 'Overview' : activeTrack.label;
 
   function handleToggle() {
-    if (tracking) return;
     setOpen(o => !o);
     setEditingId(null);
   }
 
+  function handleOverview() {
+    onOverviewSelect();
+    setOpen(false);
+    setEditingId(null);
+  }
+
   function handleSwitch(id: string) {
+    if (tracking) return; // block track switch while contraction in progress
     if (id !== activeTrackId) onSwitch(id);
     setOpen(false);
     setEditingId(null);
@@ -71,14 +83,13 @@ export function TrackSwitcher({ tracks, activeTrackId, tracking, onSwitch, onCre
   return (
     <div className="track-switcher" ref={containerRef}>
       <button
-        className={`track-switcher-btn ${tracking ? 'track-switcher-btn--locked' : ''}`}
+        className="track-switcher-btn"
         onClick={handleToggle}
         aria-haspopup="listbox"
         aria-expanded={open}
-        title={tracking ? 'Stop the current contraction to switch tracks' : undefined}
       >
-        <span className="track-switcher-label">{activeTrack.label}</span>
-        {tracking
+        <span className="track-switcher-label">{label}</span>
+        {tracking && !isOverview
           ? <span className="track-switcher-lock">●</span>
           : <ChevronDown size={14} className={`track-chevron ${open ? 'open' : ''}`} />
         }
@@ -86,16 +97,32 @@ export function TrackSwitcher({ tracks, activeTrackId, tracking, onSwitch, onCre
 
       {open && (
         <div className="track-dropdown" role="listbox">
+          {/* Overview entry */}
+          <div
+            className={`track-item track-overview-item ${isOverview ? 'active' : ''}`}
+            role="option"
+            aria-selected={isOverview}
+            onClick={handleOverview}
+          >
+            <span className="track-item-check">
+              {isOverview && <Check size={12} />}
+            </span>
+            <LayoutGrid size={13} className="track-overview-icon" />
+            <span className="track-item-label">Overview</span>
+          </div>
+
+          <div className="track-dropdown-divider" />
+
           {tracks.map(track => (
             <div
               key={track.id}
-              className={`track-item ${track.id === activeTrackId ? 'active' : ''}`}
+              className={`track-item ${!isOverview && track.id === activeTrackId ? 'active' : ''} ${tracking ? 'track-item--locked' : ''}`}
               role="option"
-              aria-selected={track.id === activeTrackId}
+              aria-selected={!isOverview && track.id === activeTrackId}
               onClick={() => editingId !== track.id && handleSwitch(track.id)}
             >
               <span className="track-item-check">
-                {track.id === activeTrackId && <Check size={12} />}
+                {!isOverview && track.id === activeTrackId && <Check size={12} />}
               </span>
 
               {editingId === track.id ? (

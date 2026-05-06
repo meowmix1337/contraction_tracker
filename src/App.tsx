@@ -6,6 +6,7 @@ import { ConfirmDialog } from './ConfirmDialog';
 import { TrackSwitcher } from './TrackSwitcher';
 import { ExportDialog } from './ExportDialog';
 import { AddContractionDialog } from './AddContractionDialog';
+import { OverviewPanel } from './OverviewPanel';
 import { runExport } from './export';
 import type { ExportFormat } from './export';
 import { lazy, Suspense } from 'react';
@@ -189,6 +190,7 @@ export default function App() {
   const [trackToDelete, setTrackToDelete] = useState<Track | null>(null);
   const [showExport, setShowExport] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showOverview, setShowOverview] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
 
   function handleExport(selectedIds: string[], format: ExportFormat) {
@@ -196,13 +198,14 @@ export default function App() {
     runExport(format, selectedTracks, allContractions);
   }
 
-  // Reset pagination when switching tracks
   function handleSwitchTrack(id: string) {
+    setShowOverview(false);
     switchTrack(id);
     setVisibleCount(5);
   }
 
   function handleCreateTrack() {
+    setShowOverview(false);
     createTrack();
     setVisibleCount(5);
   }
@@ -223,8 +226,10 @@ export default function App() {
           <TrackSwitcher
             tracks={tracks}
             activeTrackId={activeTrackId}
+            isOverview={showOverview}
             tracking={tracking}
             onSwitch={handleSwitchTrack}
+            onOverviewSelect={() => setShowOverview(true)}
             onCreate={handleCreateTrack}
             onRename={renameTrack}
             onDeleteRequest={setTrackToDelete}
@@ -243,7 +248,13 @@ export default function App() {
         </div>
       </header>
 
-      {/* Stats */}
+      {/* Overview mode */}
+      {showOverview && (
+        <OverviewPanel tracks={tracks} allContractions={allContractions} />
+      )}
+
+      {/* Per-track content */}
+      {!showOverview && <>
       <div className="stats-grid">
         <StatCard label="Count" value={count > 0 ? String(count) : '—'} />
         <StatCard
@@ -340,6 +351,7 @@ export default function App() {
           </>
         )}
       </div>
+      </>}
 
       <AddContractionDialog
         key={String(showAddDialog)}

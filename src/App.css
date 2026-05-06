@@ -44,6 +44,112 @@
   flex-shrink: 0;
 }
 
+/* Overview panel */
+.overview-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.breakdown-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.breakdown-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: var(--surface-soft);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  color: var(--body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.breakdown-toggle:hover {
+  background: var(--surface-strong);
+}
+
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.breakdown-card {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.breakdown-track-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.breakdown-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-xs);
+}
+
+.breakdown-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.breakdown-stat-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 600;
+}
+
+.breakdown-stat-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.breakdown-stat-value.green { color: var(--success); }
+.breakdown-stat-value.yellow { color: var(--mustard); }
+
+/* Track switcher — overview item */
+.track-overview-item {
+  color: var(--ink);
+}
+
+.track-overview-icon {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.track-dropdown-divider {
+  height: 1px;
+  background: var(--hairline);
+  margin: var(--space-xxs) 0;
+}
+
+.track-item--locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 /* Track switcher */
 .track-switcher {
   position: relative;
