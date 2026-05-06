@@ -110,16 +110,14 @@ export function ContractionCharts({ contractions }: Props) {
 
       {hasPain && (
         <div className="chart-block">
-          <p className="chart-title">Pain vs duration</p>
+          <p className="chart-title">Pain level</p>
           <ResponsiveContainer width="100%" height={180}>
             <ComposedChart data={points} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
               <XAxis dataKey="label" tick={{ fill: TEXT, fontSize: 11 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-              <YAxis yAxisId="duration" tickFormatter={formatYAxis} tick={{ fill: TEXT, fontSize: 11 }} tickLine={false} axisLine={false} />
-              <YAxis yAxisId="pain" orientation="right" domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fill: RED, fontSize: 11 }} tickLine={false} axisLine={false} />
+              <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fill: RED, fontSize: 11 }} tickLine={false} axisLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: GRID }} />
-              <Bar yAxisId="duration" dataKey="duration" name="Duration" fill={ACCENT} radius={[4, 4, 0, 0]} maxBarSize={40} opacity={0.6} />
-              <Line yAxisId="pain" dataKey="painLevel" name="Pain" stroke={RED} strokeWidth={2.5} dot={{ fill: RED, r: 4, strokeWidth: 0 }} connectNulls />
+              <Line dataKey="painLevel" name="Pain" stroke={RED} strokeWidth={2.5} dot={{ fill: RED, r: 4, strokeWidth: 0 }} connectNulls />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
