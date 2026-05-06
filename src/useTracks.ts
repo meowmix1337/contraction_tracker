@@ -216,6 +216,7 @@ export function useTracks() {
     tracks: state.tracks,
     activeTrack,
     activeTrackId: state.activeTrackId,
+    allContractions: state.contractions,
     contractions,
     tracking,
     elapsed,
